@@ -1,8 +1,16 @@
 {
-  "name": "iamnop-site2-tmp",
+  "name": "iamnop-site2",
   "private": true,
   "dependencies": {
-    "bootstrap-sass-official": "~3.3.1",
-    "modernizr": "~2.8.1"
+    "modernizr": "~2.8.1",
+    "skeleton": "~2.0.4"
+  },
+  "overrides": {
+    "skeleton": {
+      "main": [
+        "css/normalize.css",
+        "css/skeleton.css"
+      ]
+    }
   }
 }
