@@ -19,9 +19,9 @@ a, a:visited, a:active, a:hover {
 
 a:active, a:hover {
   text-decoration: underline;
-  color: $secondary-color;
+  color: $tertiary-color;
   svg {
-    fill: $secondary-color;
+    fill: $tertiary-color;
   }
 }
 
@@ -96,5 +96,6 @@ a:active, a:hover {
   &:last-child {
     padding: 20px 0;
     color: $secondary-color;
+    border: none;
   }
 }
