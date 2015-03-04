@@ -116,38 +116,15 @@ a:active, a:hover {
     height: 16px;
     margin-left: 8px;
     display: inline-block;
-    background-color: $color-bg;
-    border: 1px solid $color-1;
     cursor: pointer;
-  }
-}
-
-// color scheme
-
-body.scheme-dark {
-  background: $dark-color-bg;
-  color: $dark-color-1;
-}
-.scheme-dark {
-  a, a:visited {
-    color: $dark-color-1;
-    svg {
-      fill: $dark-color-1;
+    background-color: $color-bg;
+    border: 0px solid $color-1;
+    &.selected {
+      width: 14px;
+      height: 14px;
+      border-width: 1px;
     }
   }
-  a:active, a:hover {
-    color: $dark-color-3;
-    svg {
-      fill: $dark-color-3;
-    }
-  }
-  .section {
-    h3, &:last-child { color: $dark-color-2; }
-    border-bottom-color: $dark-color-2-5;
-  }
 }
 
-.scheme-palette>div.scheme-dark {
-  border-color: $dark-color-1;
-  background-color: $dark-color-bg;
-}
+@import '_color-schemes.scss';

@@ -1,10 +1,24 @@
+(function() {
+
 "use strict";
 
 console.log("Hello! My name is Nop!");
 
-Array.prototype.forEach.call(document.querySelector(".scheme-palette").children, function(elem) {
-  elem.onclick = function(e) {
-    var scheme = elem.classList[0];
-    document.body.className = scheme || "";
+var setScheme = (function() {
+  var prevElem;
+  return function setScheme() {
+    if (this === prevElem) return;
+    document.body.className = this.dataset.palette || "";
+    this.className = "selected";
+    if (prevElem) prevElem.className = "";
+    prevElem = this;
   };
+})();
+
+setScheme.call(document.querySelector(".scheme-palette .selected"));
+
+Array.prototype.forEach.call(document.querySelector(".scheme-palette").children, function(elem) {
+  elem.onclick = setScheme;
 });
+
+})(); // global closure
