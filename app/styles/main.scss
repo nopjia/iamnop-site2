@@ -18,8 +18,11 @@ a, a:visited, a:active, a:hover {
 }
 
 a:active, a:hover {
-  color: $secondary-color;
   text-decoration: underline;
+  color: $secondary-color;
+  svg {
+    fill: $secondary-color;
+  }
 }
 
 .container {
@@ -28,12 +31,15 @@ a:active, a:hover {
 
 .section {
   padding: 80px 0;
-  border-bottom: 1px solid $secondary-color;
-  text-align: justify;
+  border-bottom: 1px solid $secondary-color-light;
+
+  font-size: 14px;
+  line-height: 150%;
 
   h2 {
     font-size: 36px;
     margin: 0;
+    margin-bottom: 6px;
   }
 
   h3 {
@@ -43,21 +49,52 @@ a:active, a:hover {
     margin-bottom: 30px;
   }
 
-  p {
-    font-size: 14px;
-    line-height: 160%;
+  p, ul {
     margin-bottom: 16px;
+  }
 
+  p {
+    text-align: justify;
     &:last-child {
       margin-bottom: 0;
     }
   }
 
-  .ilike {
-    padding-top: 45px;
+  ul {
+    list-style: none;
+  }
+
+  li {
+    margin: 0;
+  }
+
+  .right-side {
+    @media (min-width: 550px) {
+      margin-top: 51px;
+    }
+    margin-top: 30px;
+
     text-align: right;
     h3 {
       margin: 0;
     }
+    p {
+      text-align: right;
+    }
+  }
+
+  .contact {
+    a svg {
+      width: 16px;
+      height: 16px;
+      margin-top: 3px;
+      margin-bottom: -3px;
+      margin-right: 3px;
+    }
+  }
+
+  &:last-child {
+    padding: 20px 0;
+    color: $secondary-color;
   }
 }
