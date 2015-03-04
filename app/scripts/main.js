@@ -2,7 +2,9 @@
 
 console.log("Hello! My name is Nop!");
 
-document.querySelector(".scheme-palette").onclick = function(e) {
-  var scheme = e.target.classList[0];
-  document.body.className = scheme || "";
-};
+Array.prototype.forEach.call(document.querySelector(".scheme-palette").children, function(elem) {
+  elem.onclick = function(e) {
+    var scheme = elem.classList[0];
+    document.body.className = scheme || "";
+  };
+});
