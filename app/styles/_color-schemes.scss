@@ -17,7 +17,8 @@
       }
     }
     .section {
-      h3, &:last-child { color: $c2; }
+      h3 { color: $c2; }
+      &:last-child { color: $c25; }
       border-bottom-color: $c25;
     }
     .scheme-palette>div {
@@ -39,10 +40,24 @@
 );
 
 @include color-scheme(
+  "sepia",
+  #FFF4DD,
+  #42210B,
+  #ECAC80,
+  #ECC7AE,
+  #AA0000
+);
+
+@include color-scheme(
   "dos",
   blue,
   white,
   yellow,
-  yellow,
+  gray,
   red
 );
+body.dos {
+  font-family: "VT323", Courier New, Courier, monospace;
+  // h1, h2 { font-size: 32px; }
+  // h3 { font-size: 20px; }
+}

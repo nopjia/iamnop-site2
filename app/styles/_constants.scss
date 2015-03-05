@@ -1,4 +1,7 @@
-$icon-font-path: '../fonts/';
+$icon-font-path: "../fonts/";
+
+@import url("http://fonts.googleapis.com/css?family=Vollkorn|VT323");
+$font-stack: "Vollkorn", Georgia, Times New Roman, Times, serif;
 
 $color-1:   #000;
 $color-2:   #aaa;

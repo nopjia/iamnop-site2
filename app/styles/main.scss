@@ -1,4 +1,4 @@
-@import '_constants.scss';
+@import "_constants.scss";
 
 // bower:scss
 // endbower
@@ -7,7 +7,7 @@
 // endbower
 
 body {
-  font-family: 'Vollkorn', 'Times', serif;
+  font-family: $font-stack;
   background: $color-bg;
   color: $color-1;
 }
@@ -89,8 +89,8 @@ a:active, a:hover {
     a svg {
       width: 16px;
       height: 16px;
-      margin-top: 3px;
-      margin-bottom: -3px;
+      margin-top: 4px;
+      margin-bottom: -4px;
       margin-right: 3px;
     }
   }
@@ -127,4 +127,4 @@ a:active, a:hover {
   }
 }
 
-@import '_color-schemes.scss';
+@import "_color-schemes.scss";
