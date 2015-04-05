@@ -41,7 +41,7 @@ var RenderContext = function(canvas) {
     _initRenderer();
 
     // fov, aspect, near, far
-    _camera = new THREE.PerspectiveCamera(45, _aspect, 1, 100);
+    _camera = new THREE.PerspectiveCamera(45, _aspect, 0.01, 100);
 
     _scene = new THREE.Scene();
 
@@ -107,20 +107,14 @@ var RenderContext = function(canvas) {
     _camera.position.z = 10;
 
     // init bbox
-    var BBOX_Z_OFFSET = 1.0;  // distance from camera near plane
     _bbox = new THREE.Box3(
       new THREE.Vector3(-10, -12, -10),
-      new THREE.Vector3( 10,  12, _camera.position.z - _camera.near - BBOX_Z_OFFSET)
+      new THREE.Vector3( 10,  12, _camera.position.z)
     );
-    // // debug box
-    // var bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
-    // bboxMesh.position.copy(_bbox.center());
-    // bboxMesh.scale.copy(_bbox.size());
-    // _scene.add(bboxMesh);
 
     // fog
     var FOG_NEAR = 20.0;  // tweak overall fade amount
-    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _camera.near + _bbox.size().z + FOG_NEAR/10.0);
+    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _bbox.size().z + FOG_NEAR/10.0);
 
     // light
     var light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -144,6 +138,12 @@ var RenderContext = function(canvas) {
     });
 
     var geo = new THREE.IcosahedronGeometry(1);
+
+    // // debug box, sorry must declare after _matLine
+    // var bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
+    // bboxMesh.position.copy(_bbox.center());
+    // bboxMesh.scale.copy(_bbox.size());
+    // _scene.add(bboxMesh);
 
     // init meshes
     var MESH_COUNT = 20;
