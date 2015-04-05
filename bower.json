@@ -3,7 +3,8 @@
   "private": true,
   "dependencies": {
     "modernizr": "~2.8.1",
-    "skeleton": "~2.0.4"
+    "skeleton": "~2.0.4",
+    "threejs": "*"
   },
   "overrides": {
     "skeleton": {
