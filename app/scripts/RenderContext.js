@@ -12,7 +12,7 @@ var RenderContext = function(canvas) {
 
   var _lastTime = Date.now();
 
-  var _meshes, _geo, _matLine, _matFill, _bbox;
+  var _meshes, _matLine, _matFill, _bbox;
 
   var _color = 0xffffff;
   var _bgcolor = 0x0;
@@ -106,22 +106,6 @@ var RenderContext = function(canvas) {
   this.customInit = function() {
     _camera.position.z = 10;
 
-    // init common geo and mats
-    _geo = new THREE.IcosahedronGeometry(1);
-    _matLine = new THREE.MeshBasicMaterial({
-      color: _color,
-      wireframe: true
-    });
-    _matFill = new THREE.MeshPhongMaterial({
-      color: _bgcolor,
-      transparent: true,
-      depthTest: true,
-      depthWrite: false,
-      polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      shading: THREE.FlatShading
-    });
-
     // init bbox
     var BBOX_Z_OFFSET = 1.0;  // distance from camera near plane
     _bbox = new THREE.Box3(
@@ -136,7 +120,7 @@ var RenderContext = function(canvas) {
 
     // fog
     var FOG_NEAR = 20.0;  // tweak overall fade amount
-    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _camera.near + _bbox.size().z + FOG_NEAR/5.0);
+    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _camera.near + _bbox.size().z + FOG_NEAR/10.0);
 
     // light
     var light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -144,12 +128,29 @@ var RenderContext = function(canvas) {
     _scene.add(light);
     _scene.add(new THREE.AmbientLight(0x888888));
 
+    // init common mats
+    _matLine = new THREE.MeshBasicMaterial({
+      color: _color,
+      wireframe: true
+    });
+    _matFill = new THREE.MeshPhongMaterial({
+      color: _bgcolor,
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+      polygonOffset: true,
+      polygonOffsetFactor: 1.0,
+      shading: THREE.FlatShading
+    });
+
+    var geo = new THREE.IcosahedronGeometry(1);
+
     // init meshes
     var MESH_COUNT = 20;
     _meshes = [];
     for (var i=0; i<MESH_COUNT; i++) {
-      var meshLine = new THREE.Mesh(_geo, _matLine);
-      var meshFill = new THREE.Mesh(_geo, _matFill);
+      var meshLine = new THREE.Mesh(geo, _matLine);
+      var meshFill = new THREE.Mesh(geo, _matFill);
 
       var size = _bbox.size();
       var randPos = new THREE.Vector3(
