@@ -11,16 +11,11 @@ var RenderContext = function(canvas) {
   var _w, _h, _aspect;
 
   var _lastTime = Date.now();
-  var _meshes, _geo, _matLine, _matFill;
 
+  var _meshes, _geo, _matLine, _matFill, _bbox;
 
-  // HARDCODE PARAMS
-
-  var _cameraParams = {
-    fov: 45,
-    near: 1,
-    far: 1000
-  };
+  var _color = 0xffffff;
+  var _bgcolor = 0x0;
 
 
   // PRIVATE FUNCTIONS
@@ -34,7 +29,7 @@ var RenderContext = function(canvas) {
       antialias: false,
     });
     _renderer.setSize(_w, _h);
-    _renderer.setClearColor(0x0);
+    _renderer.setClearColor(_bgcolor);
     _renderer.autoClear = false;
   };
 
@@ -45,12 +40,8 @@ var RenderContext = function(canvas) {
 
     _initRenderer();
 
-    _camera = new THREE.PerspectiveCamera(
-      _cameraParams.fov,
-      _aspect,
-      _cameraParams.near,
-      _cameraParams.far
-    );
+    // fov, aspect, near, far
+    _camera = new THREE.PerspectiveCamera(45, _aspect, 1, 100);
 
     _scene = new THREE.Scene();
 
@@ -105,6 +96,11 @@ var RenderContext = function(canvas) {
     _matLine.color.set(color);
     _matFill.color.set(bgcolor);
     _renderer.setClearColor(bgcolor);
+    _scene.fog.color.set(bgcolor);
+
+    // sync, but not really used
+    _color = color;
+    _bgcolor = bgcolor;
   };
 
   this.customInit = function() {
@@ -113,11 +109,11 @@ var RenderContext = function(canvas) {
     // init common geo and mats
     _geo = new THREE.IcosahedronGeometry(1);
     _matLine = new THREE.MeshBasicMaterial({
-      color: 0xff0000,
+      color: _color,
       wireframe: true
     });
     _matFill = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color: _bgcolor,
       transparent: true,
       depthTest: true,
       depthWrite: false,
@@ -125,26 +121,48 @@ var RenderContext = function(canvas) {
       polygonOffsetFactor: 1.0
     });
 
+    // init bbox
+    var BBOX_Z_OFFSET = 1.0;  // distance from camera near plane
+    _bbox = new THREE.Box3(
+      new THREE.Vector3(-10, -12, -10),
+      new THREE.Vector3( 10,  12, _camera.position.z - _camera.near - BBOX_Z_OFFSET)
+    );
+    // // debug box
+    // var bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
+    // bboxMesh.position.copy(_bbox.center());
+    // bboxMesh.scale.copy(_bbox.size());
+    // _scene.add(bboxMesh);
+
+    // fog
+    var FOG_NEAR = 20.0;  // tweak overall fade amount
+    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _camera.near + _bbox.size().z + FOG_NEAR/5.0);
+
     // init meshes
-    var MESH_COUNT = 10;
+    var MESH_COUNT = 20;
     _meshes = [];
     for (var i=0; i<MESH_COUNT; i++) {
       var meshLine = new THREE.Mesh(_geo, _matLine);
       var meshFill = new THREE.Mesh(_geo, _matFill);
 
-      var POS_RANGE = new THREE.Vector3(5, 15, 20);
+      var size = _bbox.size();
       var randPos = new THREE.Vector3(
-        POS_RANGE.x*Math.random()-POS_RANGE.x/2,
-        POS_RANGE.y*Math.random()-POS_RANGE.y/2,
-        POS_RANGE.z*Math.random()-POS_RANGE.z/2);
+        size.x*Math.random()+_bbox.min.x,
+        size.y*Math.random()+_bbox.min.y,
+        size.z*Math.random()+_bbox.min.z);
       meshLine.position.copy(randPos);
       meshFill.position.copy(randPos);
 
-      var ROT_RANGE = 1.0;
-      var randRot = [ ROT_RANGE*Math.random()-ROT_RANGE/2.0,
-                      ROT_RANGE*Math.random()-ROT_RANGE/2.0,
-                      ROT_RANGE*Math.random()-ROT_RANGE/2.0];
-      meshLine.rotSpeed = meshFill.rotSpeed = randRot;
+      var AVEL_RANGE = 1.0;
+      var randAVel = [ AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
+                      AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
+                      AVEL_RANGE*Math.random()-AVEL_RANGE/2.0];
+      meshLine.avel = meshFill.avel = randAVel;
+
+      var VEL_RANGE = 1.0;
+      var randVel = [ VEL_RANGE*Math.random()-VEL_RANGE/2.0,
+                      VEL_RANGE*Math.random()-VEL_RANGE/2.0,
+                      VEL_RANGE*Math.random()-VEL_RANGE/2.0];
+      meshLine.vel = meshFill.vel = randVel;
 
       _meshes.push(meshLine);
       _meshes.push(meshFill);
@@ -154,16 +172,37 @@ var RenderContext = function(canvas) {
   };
 
   this.customUpdate = function(dt) {
+    // update meshes anim
     for (var i=0; i<_meshes.length; i++) {
-      _meshes[i].rotation.x += _meshes[i].rotSpeed[0] * dt;
-      _meshes[i].rotation.y += _meshes[i].rotSpeed[1] * dt;
-      _meshes[i].rotation.z += _meshes[i].rotSpeed[2] * dt;
+      _meshes[i].rotation.x += _meshes[i].avel[0] * dt;
+      _meshes[i].rotation.y += _meshes[i].avel[1] * dt;
+      _meshes[i].rotation.z += _meshes[i].avel[2] * dt;
+
+      _meshes[i].position.x += _meshes[i].vel[0] * dt;
+      _meshes[i].position.y += _meshes[i].vel[1] * dt;
+      _meshes[i].position.z += _meshes[i].vel[2] * dt;
     }
 
+    // check mesh wrap
+    for (i=0; i<_meshes.length; i+=2) {
+      if (!_bbox.containsPoint(_meshes[i].position)) {
+        var mesh1 = _meshes[i];
+        var mesh2 = _meshes[i+1];
+
+        if      (mesh1.position.x > _bbox.max.x) mesh1.position.x = mesh2.position.x = _bbox.min.x;
+        else if (mesh1.position.x < _bbox.min.x) mesh1.position.x = mesh2.position.x = _bbox.max.x;
+        if      (mesh1.position.y > _bbox.max.y) mesh1.position.y = mesh2.position.y = _bbox.min.y;
+        else if (mesh1.position.y < _bbox.min.y) mesh1.position.y = mesh2.position.y = _bbox.max.y;
+        if      (mesh1.position.z > _bbox.max.z) mesh1.position.z = mesh2.position.z = _bbox.min.z;
+        else if (mesh1.position.z < _bbox.min.z) mesh1.position.z = mesh2.position.z = _bbox.max.z;
+      }
+    }
+
+    // update camera
     var RANGE = 20;
     var totalHeight = document.documentElement.scrollHeight;
     var currHeight = window.pageYOffset + window.innerHeight/2;
-    _camera.position.y = -currHeight/totalHeight * RANGE + RANGE/2.0;
+    _camera.position.y = -(currHeight/totalHeight * RANGE - RANGE/2.0);
   };
 
 
