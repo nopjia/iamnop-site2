@@ -108,7 +108,7 @@ var RenderContext = function(canvas) {
   };
 
   this.customInit = function() {
-    _camera.position.z = 20;
+    _camera.position.z = 10;
 
     // init common geo and mats
     _geo = new THREE.IcosahedronGeometry(1);
@@ -126,15 +126,25 @@ var RenderContext = function(canvas) {
     });
 
     // init meshes
+    var MESH_COUNT = 10;
     _meshes = [];
-    for (var i=0; i<10; i++) {
+    for (var i=0; i<MESH_COUNT; i++) {
       var meshLine = new THREE.Mesh(_geo, _matLine);
       var meshFill = new THREE.Mesh(_geo, _matFill);
 
-      var RANGE = 10;
-      var randPos = new THREE.Vector3(RANGE*Math.random()-RANGE/2, RANGE*Math.random()-RANGE/2, RANGE*Math.random()-RANGE/2);
+      var POS_RANGE = new THREE.Vector3(5, 15, 20);
+      var randPos = new THREE.Vector3(
+        POS_RANGE.x*Math.random()-POS_RANGE.x/2,
+        POS_RANGE.y*Math.random()-POS_RANGE.y/2,
+        POS_RANGE.z*Math.random()-POS_RANGE.z/2);
       meshLine.position.copy(randPos);
       meshFill.position.copy(randPos);
+
+      var ROT_RANGE = 1.0;
+      var randRot = [ ROT_RANGE*Math.random()-ROT_RANGE/2.0,
+                      ROT_RANGE*Math.random()-ROT_RANGE/2.0,
+                      ROT_RANGE*Math.random()-ROT_RANGE/2.0];
+      meshLine.rotSpeed = meshFill.rotSpeed = randRot;
 
       _meshes.push(meshLine);
       _meshes.push(meshFill);
@@ -145,8 +155,15 @@ var RenderContext = function(canvas) {
 
   this.customUpdate = function(dt) {
     for (var i=0; i<_meshes.length; i++) {
-      _meshes[i].rotation.y += 1.0 * dt;
+      _meshes[i].rotation.x += _meshes[i].rotSpeed[0] * dt;
+      _meshes[i].rotation.y += _meshes[i].rotSpeed[1] * dt;
+      _meshes[i].rotation.z += _meshes[i].rotSpeed[2] * dt;
     }
+
+    var RANGE = 20;
+    var totalHeight = document.documentElement.scrollHeight;
+    var currHeight = window.pageYOffset + window.innerHeight/2;
+    _camera.position.y = -currHeight/totalHeight * RANGE + RANGE/2.0;
   };
 
 
