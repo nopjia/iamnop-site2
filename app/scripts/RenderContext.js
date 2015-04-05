@@ -112,13 +112,14 @@ var RenderContext = function(canvas) {
       color: _color,
       wireframe: true
     });
-    _matFill = new THREE.MeshBasicMaterial({
+    _matFill = new THREE.MeshPhongMaterial({
       color: _bgcolor,
       transparent: true,
       depthTest: true,
       depthWrite: false,
       polygonOffset: true,
-      polygonOffsetFactor: 1.0
+      polygonOffsetFactor: 1.0,
+      shading: THREE.FlatShading
     });
 
     // init bbox
@@ -136,6 +137,12 @@ var RenderContext = function(canvas) {
     // fog
     var FOG_NEAR = 20.0;  // tweak overall fade amount
     _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _camera.near + _bbox.size().z + FOG_NEAR/5.0);
+
+    // light
+    var light = new THREE.DirectionalLight(0xffffff, 1.0);
+    light.position.set(1, 2, 1);
+    _scene.add(light);
+    _scene.add(new THREE.AmbientLight(0x888888));
 
     // init meshes
     var MESH_COUNT = 20;
