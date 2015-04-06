@@ -127,17 +127,14 @@ var RenderContext = function(canvas) {
       color: _color,
       wireframe: true
     });
-    _matFill = new THREE.MeshPhongMaterial({
+    _matFill = new THREE.MeshLambertMaterial({
       color: _bgcolor,
       transparent: true,
       depthTest: true,
       depthWrite: false,
       polygonOffset: true,
-      polygonOffsetFactor: 1.0,
-      shading: THREE.FlatShading
+      polygonOffsetFactor: 1.0
     });
-
-    var geo = new THREE.IcosahedronGeometry(1);
 
     // // debug box, sorry must declare after _matLine
     // var bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
@@ -145,38 +142,42 @@ var RenderContext = function(canvas) {
     // bboxMesh.scale.copy(_bbox.size());
     // _scene.add(bboxMesh);
 
-    // init meshes
+    // load geo init meshes
+    var GEO_URL = "models/icosahedron.json";
     var MESH_COUNT = 20;
     _meshes = [];
-    for (var i=0; i<MESH_COUNT; i++) {
-      var meshLine = new THREE.Mesh(geo, _matLine);
-      var meshFill = new THREE.Mesh(geo, _matFill);
+    var _loader = new THREE.JSONLoader( true );
+    _loader.load(GEO_URL, function(geo) {
+      for (var i=0; i<MESH_COUNT; i++) {
+        var meshLine = new THREE.Mesh(geo, _matLine);
+        var meshFill = new THREE.Mesh(geo, _matFill);
 
-      var size = _bbox.size();
-      var randPos = new THREE.Vector3(
-        size.x*Math.random()+_bbox.min.x,
-        size.y*Math.random()+_bbox.min.y,
-        size.z*Math.random()+_bbox.min.z);
-      meshLine.position.copy(randPos);
-      meshFill.position.copy(randPos);
+        var size = _bbox.size();
+        var randPos = new THREE.Vector3(
+          size.x*Math.random()+_bbox.min.x,
+          size.y*Math.random()+_bbox.min.y,
+          size.z*Math.random()+_bbox.min.z);
+        meshLine.position.copy(randPos);
+        meshFill.position.copy(randPos);
 
-      var AVEL_RANGE = 1.0;
-      var randAVel = [ AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
-                      AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
-                      AVEL_RANGE*Math.random()-AVEL_RANGE/2.0];
-      meshLine.avel = meshFill.avel = randAVel;
+        var AVEL_RANGE = 1.0;
+        var randAVel = [AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
+                        AVEL_RANGE*Math.random()-AVEL_RANGE/2.0,
+                        AVEL_RANGE*Math.random()-AVEL_RANGE/2.0];
+        meshLine.avel = meshFill.avel = randAVel;
 
-      var VEL_RANGE = 1.0;
-      var randVel = [ VEL_RANGE*Math.random()-VEL_RANGE/2.0,
-                      VEL_RANGE*Math.random()-VEL_RANGE/2.0,
-                      VEL_RANGE*Math.random()-VEL_RANGE/2.0];
-      meshLine.vel = meshFill.vel = randVel;
+        var VEL_RANGE = 1.0;
+        var randVel =  [VEL_RANGE*Math.random()-VEL_RANGE/2.0,
+                        VEL_RANGE*Math.random()-VEL_RANGE/2.0,
+                        VEL_RANGE*Math.random()-VEL_RANGE/2.0];
+        meshLine.vel = meshFill.vel = randVel;
 
-      _meshes.push(meshLine);
-      _meshes.push(meshFill);
-      _scene.add(meshLine);
-      _scene.add(meshFill);
-    }
+        _meshes.push(meshLine);
+        _meshes.push(meshFill);
+        _scene.add(meshLine);
+        _scene.add(meshFill);
+      }
+    });
   };
 
   this.customUpdate = function(dt) {
