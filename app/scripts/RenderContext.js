@@ -12,7 +12,8 @@ var RenderContext = function(canvas) {
 
   var _lastTime = Date.now();
 
-  var _meshes, _matLine, _matFill, _bbox;
+  var _meshes, _matLine, _matFill;
+  var _bbox, _bboxMesh, _BBOX_HSIZE, _lastPageY;
 
   var _color = 0xffffff;
   var _bgcolor = 0x0;
@@ -107,14 +108,12 @@ var RenderContext = function(canvas) {
     _camera.position.z = 10;
 
     // init bbox
-    _bbox = new THREE.Box3(
-      new THREE.Vector3(-10, -12, -10),
-      new THREE.Vector3( 10,  12, _camera.position.z)
-    );
+    _BBOX_HSIZE = new THREE.Vector3(10, 10, 10);
+    _bbox = new THREE.Box3();  // not set, will set in update
 
     // fog
     var FOG_NEAR = 20.0;  // tweak overall fade amount
-    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _bbox.size().z + FOG_NEAR/10.0);
+    _scene.fog = new THREE.Fog(_bgcolor, -FOG_NEAR, _BBOX_HSIZE.z*2.0 + FOG_NEAR/10.0);
 
     // light
     var light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -137,10 +136,10 @@ var RenderContext = function(canvas) {
     });
 
     // // debug box, sorry must declare after _matLine
-    // var bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
-    // bboxMesh.position.copy(_bbox.center());
-    // bboxMesh.scale.copy(_bbox.size());
-    // _scene.add(bboxMesh);
+    // _bboxMesh = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), _matLine);
+    // _bboxMesh.position.copy(_bbox.center());
+    // _bboxMesh.scale.copy(_bbox.size());
+    // _scene.add(_bboxMesh);
 
     // load geo init meshes
     var GEO_URL = "models/icosahedron.json";
@@ -208,10 +207,22 @@ var RenderContext = function(canvas) {
     }
 
     // update camera
-    var RANGE = 20;
-    var totalHeight = document.documentElement.scrollHeight;
-    var currHeight = window.pageYOffset + window.innerHeight/2;
-    _camera.position.y = -(currHeight/totalHeight * RANGE - RANGE/2.0);
+    var SCROLL_SPEED = 0.01;
+    var currY = window.pageYOffset;
+    if (_lastPageY === undefined)
+      _lastPageY = currY;
+    _camera.position.y -= SCROLL_SPEED * (currY - _lastPageY);
+    _lastPageY = currY;
+
+    // update bbox
+    var bboxCenter = _camera.position.clone();
+    bboxCenter.z -= _BBOX_HSIZE.z;
+    _bbox.min.subVectors(bboxCenter, _BBOX_HSIZE);
+    _bbox.max.addVectors(bboxCenter, _BBOX_HSIZE);
+    if (_bboxMesh) {
+      _bboxMesh.position.copy(bboxCenter);
+      _bboxMesh.scale.copy(_bbox.size());
+    }
   };
 
 
