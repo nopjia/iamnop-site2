@@ -34,6 +34,17 @@ var RenderContext = function(canvas) {
     _renderer.autoClear = false;
   };
 
+  var _onResize = function() {
+    _w = _canvas.parentNode.clientWidth;
+    _h = _canvas.parentNode.clientHeight;
+    _aspect = _w/_h;
+
+    _renderer.setSize(_w, _h);
+
+    _camera.aspect = _aspect;
+    _camera.updateProjectionMatrix();
+  };
+
   var _init = function() {
     _w = _canvas.clientWidth;
     _h = _canvas.clientHeight;
@@ -49,17 +60,6 @@ var RenderContext = function(canvas) {
     window.addEventListener("resize", _onResize, false);
 
     _this.customInit();
-  };
-
-  var _onResize = function() {
-    _w = _canvas.parentNode.clientWidth;
-    _h = _canvas.parentNode.clientHeight;
-    _aspect = _w/_h;
-
-    _renderer.setSize(_w, _h);
-
-    _camera.aspect = _aspect;
-    _camera.updateProjectionMatrix();
   };
 
   var _calcDeltaTime = function() {
